@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# vérification et récupération des arguments (<servername> <IP address>
+# vérification et récupération des arguments (<servername> <IP address>)
 if [ -z $1 ];then
   echo
   read -p "Nom du serveur : " host
@@ -15,9 +15,21 @@ else
   IP=$2
 fi
 
-# création de l'instance
-nova boot --key-name Desktop --image "Ubuntu 16.04" --flavor vps-ssd-1 --nic net-name=Ext-Net --poll $host
+# le nom d'hôte et l'adresse IP sont sont insérées dans le script de postinstall
+cp whoami.sh sent-whoami.sh
+sed -i "3ihost=\"$host\"\nIP=\"$IP\"\n" sent-whoami.sh
 
-# attachement au vRack
+# création de l'instance avec association à Ext-Net
+nova boot --key-name Desktop \
+          --image "Ubuntu 16.04" \
+          --flavor vps-ssd-1 \
+          --nic net-id=8d3e91fd-c533-418f-8678-4252de201489 \
+          --user-data sent-whoami.sh \
+          --poll $host
+
+# association à VLAN10
 nova interface-attach --net-id 8ed23bf0-3ad3-4c29-9485-a821869d9ad4 --fixed-ip $IP $host
+
+# nettoyage
+rm sent-whoami.sh
 
