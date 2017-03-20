@@ -24,6 +24,8 @@ sudo useradd -m -U -s /bin/bash stef
 sudo adduser stef sudo
 sudo cp -r /home/ubuntu/secretbox.cloud /home/stef/secretbox.cloud
 sudo chown -R stef:stef /home/stef/secretbox.cloud
+sudo cp -r /home/ubuntu/.ssh /home/stef/.shh
+sudo chown -R stef:stef /home/stef/.ssh/
 echo "stef ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/99-secretbox-users
 
 
