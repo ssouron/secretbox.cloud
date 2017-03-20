@@ -1,0 +1,40 @@
+
+
+
+# Création de l'utilisateur 'stef'
+useradd -m -U -s /bin/bash stef
+if [ $? -eq 0 ];then
+  echo "Utilisateur stef créé" >> /root/postinstall.log
+else
+  exit 1
+fi
+echo "stef:l0l0mila" | chpasswd
+adduser stef sudo
+mkdir /home/stef/.ssh
+echo $sshKey > /home/stef/.ssh/authorized_keys
+chown -R stef:stef /home/stef/.ssh
+echo "stef ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/99-secretbox-cloud
+
+# Mise à jour du système
+apt -y update && apt -y upgrade
+
+
+
+
+
+
+
+
+# Recherche du nom de la seconde connexion ethernet
+if=$(ifconfig -a | grep -v "^\s" | grep -v "^$" | grep -v "^ens3" | grep -v "^lo" | cut -d " " -f 1)
+echo "Connexion secondaire trouvée : $if" >> /root/install.log
+echo >> /root/install.log
+
+# Configuration de la seconde connexion ethernet
+echo "Configuration de la connexion $if à l'adresse IP $IP" >> /root/install.log
+echo >> /root/install.log
+echo "auto $if" > /etc/network/interfaces.d/90-vrack.cfg
+echo "iface $if inet static" >> /etc/network/interfaces.d/90-vrack.cfg
+echo "    address $IP" >> /etc/network/interfaces.d/90-vrack.cfg
+echo "    netmask 255.255.255.0" >> /etc/network/interfaces.d/90-vrack.cfg
+

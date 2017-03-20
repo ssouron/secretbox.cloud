@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+  read -p "Nom du serveur : " host
+else
+  host=$1
+fi
+
+echo
+echo "Suppression du serveur $host."
+
+nova delete $host
+
+ssh-keygen -R $host
+
+echo
+echo "Mise à jour de /etc/hosts :"
+echo
+cat /etc/hosts | grep -v "$host.secretbox.cloud" | sudo tee /etc/hosts
+
+echo
+exit 0

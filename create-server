@@ -15,21 +15,28 @@ else
   IP=$2
 fi
 
-# le nom d'hôte et l'adresse IP sont sont insérées dans le script de postinstall
-cp whoami.sh sent-whoami.sh
-sed -i "3ihost=\"$host\"\nIP=\"$IP\"\n" sent-whoami.sh
-
 # création de l'instance avec association à Ext-Net
 nova boot --key-name Desktop \
           --image "Ubuntu 16.04" \
           --flavor vps-ssd-1 \
           --nic net-id=8d3e91fd-c533-418f-8678-4252de201489 \
-          --user-data sent-whoami.sh \
+          --user-data postinstall.sh \
           --poll $host
 
 # association à VLAN10
 nova interface-attach --net-id 8ed23bf0-3ad3-4c29-9485-a821869d9ad4 --fixed-ip $IP $host
 
-# nettoyage
-rm sent-whoami.sh
+# récupération IP publique
+pubIP=$(nova list | grep $host | grep -o "Ext-Net.*;" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
+
+# mise à jour du fichier /etc/hosts
+echo
+echo "Mise à jour de /etc/hosts : "
+echo
+
+cat /etc/hosts | grep -v "$host.secretbox.cloud" | sudo tee /etc/hosts
+echo "$pubIP		$host.secretbox.cloud		$host" | sudo tee -a /etc/hosts
+
+echo
+exit 0
 
