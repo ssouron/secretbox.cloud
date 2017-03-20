@@ -4,5 +4,5 @@ apt -y install git
 
 cd /home/ubuntu
 
-git clone https://ssouron@gitlab.com/ssouron/secretbox.cloud.git
+git clone https://github.com/ssouron/secretbox.cloud.git
 
