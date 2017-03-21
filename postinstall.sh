@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IP='192.168.0.87'
+IP='192.168.0.90'
 
 sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="net.ifnames=0"/' /etc/default/grub
 update-grub
@@ -23,4 +23,6 @@ deluser ubuntu
 cd /home/stef
 git clone https://github.com/ssouron/secretbox.cloud.git
 chown -R stef:stef /home/stef/secretbox.cloud
+
+reboot
 

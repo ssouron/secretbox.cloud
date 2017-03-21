@@ -40,8 +40,9 @@ echo
 cat /etc/hosts | grep -v "$host.secretbox.cloud" | sudo tee /etc/hosts
 echo "$pubIP		$host.secretbox.cloud		$host" | sudo tee -a /etc/hosts
 
+echo
 echo "En attente redémarrage serveur."
-sleep 15
+sleep 30
 echo "Demande de redémarrage hard du serveur."
 nova reboot --hard --poll $host
 
