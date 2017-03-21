@@ -15,6 +15,8 @@ else
   IP=$2
 fi
 
+#
+
 # Inscription de l'IP dans le script de post-install
 sed -i "s/IP='.*'/IP='$IP'/" postinstall.sh
 
@@ -29,20 +31,16 @@ nova boot --key-name Desktop \
 # association à VLAN10
 nova interface-attach --net-id f514b6f0-1556-44ac-b0a2-6f0babce821b --fixed-ip $IP $host
 
-# récupération IP publique
-pubIP=$(nova list | grep $host | grep -o "Ext-Net.*;" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
-
 # mise à jour du fichier /etc/hosts
 echo
-echo "Mise à jour de /etc/hosts : "
+echo "Mise à jour de /etc/hosts  et vlan1-hosts : "
 echo
 
-cat /etc/hosts | grep -v "$host.secretbox.cloud" | sudo tee /etc/hosts
-echo "$pubIP		$host.secretbox.cloud		$host" | sudo tee -a /etc/hosts
+~/secretbox.cloud/hosts-update
 
 echo
 echo "En attente redémarrage serveur."
-sleep 30
+sleep 20
 echo "Demande de redémarrage hard du serveur."
 nova reboot --hard --poll $host
 
