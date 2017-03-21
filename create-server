@@ -27,7 +27,7 @@ nova boot --key-name Desktop \
           --poll $host
 
 # association à VLAN10
-nova interface-attach --net-id 8ed23bf0-3ad3-4c29-9485-a821869d9ad4 --fixed-ip $IP $host
+nova interface-attach --net-id f514b6f0-1556-44ac-b0a2-6f0babce821b --fixed-ip $IP $host
 
 # récupération IP publique
 pubIP=$(nova list | grep $host | grep -o "Ext-Net.*;" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*")
