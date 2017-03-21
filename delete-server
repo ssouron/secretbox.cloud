@@ -14,9 +14,9 @@ nova delete $host
 ssh-keygen -R $host
 
 echo
-echo "Mise à jour de /etc/hosts :"
+echo "Mise à jour des fichiers hosts :"
 echo
-cat /etc/hosts | grep -v "$host.secretbox.cloud" | sudo tee /etc/hosts
+~/secretbox.cloud/hosts-update
 
 echo
 exit 0
