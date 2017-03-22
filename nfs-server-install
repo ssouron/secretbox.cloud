@@ -6,10 +6,12 @@ sudo apt -y install nfs-kernel-server
 
 sudo mkdir /share
 sudo chown nobody:nogroup /share
+sudo chmod 777 /share
 
-echo -e "/share\t\t10.0.0.0/8\t(rw,sync,no_subtree_check)" | sudo tee /etc/exports
+echo -e "/share\t\t10.*.*.*(rw,sync,no_subtree_check)" | sudo tee /etc/exports
 
-sudo systemctl restart nfs-kernel-server
+sudo service nfs-kernel-server start
+sudo update-rc.d nfs-kernel-server defaults
 
 exit 0
 
