@@ -28,7 +28,7 @@ nova boot --key-name Desktop \
           --user-data postinstall.sh \
           --poll $host
 
-# association à VLAN10
+# association à VLAN1
 nova interface-attach --net-id f514b6f0-1556-44ac-b0a2-6f0babce821b --fixed-ip $IP $host
 
 # mise à jour du fichier /etc/hosts
