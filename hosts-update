@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# =======================================================================
+#          Mise à jour de la liste des serveurs secretbox.cloud
+# =======================================================================
+
+nova list | grep "ACTIVE" > tmp.list
+
+sudo sed -i '/.secretbox.cloud/d' /etc/hosts
+> vlan1-hosts
+
+while read ligne
+do
+  host=$(echo $ligne | sed 's/\s*//g' | cut -d'|' -f3)
+  network=$(echo $ligne | sed 's/\s*//g' | cut -d'|' -f7)
+  extIP=$(echo $network | grep -o 'Ext\-Net=[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
+  if [ -z $extIP ]; then
+    extIP=$(echo $network | grep -o 'Ext\-Net=.*[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*;' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
+  fi
+  intIP=$(echo $network | grep -o 'VLAN1=[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
+  echo -e "$extIP\t\t$host.secretbox.cloud\t\t$host" | sudo tee -a /etc/hosts >> /dev/null
+  echo -e "$intIP\t\t$host.secretbox.cloud\t\t$host" >> vlan1-hosts
+done < tmp.list
+
+rm tmp.list
+
+echo
+echo "======== /etc/hosts ========"
+cat /etc/hosts
+
+echo
+echo "======== vlan1-hosts ========"
+cat vlan1-hosts
+
+echo
+exit 0
+
+

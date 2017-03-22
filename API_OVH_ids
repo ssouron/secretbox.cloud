@@ -1,0 +1,9 @@
+
+service name		c0d771566e914f6eb5aea6de19adf1c4
+
+VLAN1			pn-46184_1
+
+subnet GRA1		26cd0842-3460-4316-8db0-3d0096a5b3ea
+subnet SBG1		de2b9e42-5d4f-41d1-827e-2d7164977fee
+subnet BHS1		052c6dac-76f8-4ee7-b9e5-afe0af2814aa
+

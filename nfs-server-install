@@ -1,0 +1,15 @@
+#!/bin/bash
+
+sudo apt -y update
+
+sudo apt -y install nfs-kernel-server
+
+sudo mkdir /share
+sudo chown nobody:nogroup /share
+
+echo -e "/share\t\t10.0.0.0/8\t(rw,sync,no_subtree_check)" | sudo tee /etc/exports
+
+sudo systemctl restart nfs-kernel-server
+
+exit 0
+
