@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IP='10.0.0.2'
+IP='10.0.0.3'
 
 sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="net.ifnames=0"/' /etc/default/grub
 update-grub
