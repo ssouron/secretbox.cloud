@@ -20,6 +20,12 @@ chown -R stef:stef /home/stef/.ssh
 
 deluser ubuntu
 
+host=$(hostname)
+cat /etc/hosts | grep -v "localdomain" | tee /etc/hosts
+echo -e "127.0.0.1\t\t$host.secretbox.cloud\t\t$host" >> /etc/hosts
+echo -e "127.0.1.1\t\t$host.localdomain\t\t$host" >> /etc/hosts
+echo >> /etc/hosts
+
 cd /home/stef
 git clone https://github.com/ssouron/secretbox.cloud.git
 chown -R stef:stef /home/stef/secretbox.cloud

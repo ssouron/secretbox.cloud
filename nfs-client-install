@@ -1,0 +1,10 @@
+#!/bin/bash
+
+sudo apt -y update
+
+sudo apt -y install nfs-common
+
+sudo mkdir /share
+
+exit 0
+
