@@ -1,0 +1,33 @@
+#!/bin/bash
+
+clear
+echo "============================================================="
+echo "            Montage du stockage secretbox.cloud              "
+echo "============================================================="
+echo
+
+echo -e "Vérification de la présence du module FUSE\n"
+modprobe fuse
+fuseOK=$(dmesg | grep -i fuse)
+if [ -z $fuseOK ]; then
+  echo -e "Module fuse non présent ==> Abandon.\n"
+  exit 1
+fi
+
+echo -e "========> Mise à jour du système ...\n"
+sudo apt -y update && sudo apt -y upgrade
+
+echo -e "========> Installation du client Gluster FS ...\n"
+sudo apt -y install attr glusterfs-client
+
+echo -e "========> Montage du volume volume0 ...\n"
+sudo mkdir /volume0
+echo -e "10.1.1.1:/volume0\t/volume0\tglusterfs\tdefaults,_netdev\t0 0" | sudo tee -a /etc/fstab
+sudo mount -a && sudo mount
+
+echo -e "========> Vérification :\n"
+df -h
+
+echo
+exit 0
+

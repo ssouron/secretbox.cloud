@@ -1,1 +1,7 @@
 10.1.1.1		store-g1.secretbox.cloud		store-g1
+10.1.1.2		store-g2.secretbox.cloud		store-g2
+10.2.0.1		store-client.secretbox.cloud		store-client
+10.2.1.1		store-s1.secretbox.cloud		store-s1
+10.2.1.2		store-s2.secretbox.cloud		store-s2
+10.3.1.1		store-b1.secretbox.cloud		store-b1
+10.3.1.2		store-b2.secretbox.cloud		store-b2
