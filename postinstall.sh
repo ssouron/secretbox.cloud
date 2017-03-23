@@ -1,6 +1,6 @@
 #!/bin/bash
 
-IP='10.0.03'
+IP='10.1.1.1'
 
 sed -i 's/GRUB_CMDLINE_LINUX=""/GRUB_CMDLINE_LINUX="net.ifnames=0"/' /etc/default/grub
 update-grub
@@ -10,7 +10,7 @@ echo >> /etc/network/interfaces.d/99-vm-interfaces.cfg
 echo "auto eth1" >> /etc/network/interfaces.d/99-vm-interfaces.cfg
 echo "iface eth1 inet static" >> /etc/network/interfaces.d/99-vm-interfaces.cfg
 echo "    address $IP" >> /etc/network/interfaces.d/99-vm-interfaces.cfg
-echo "    netmask 255.255.255.0" >> /etc/network/interfaces.d/99-vm-interfaces.cfg
+echo "    netmask 255.0.0.0" >> /etc/network/interfaces.d/99-vm-interfaces.cfg
 
 useradd -m -U -s /bin/bash -p "se7/31E1XoQHo" stef
 adduser stef sudo

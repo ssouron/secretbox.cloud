@@ -1,0 +1,58 @@
+#!/bin/bash
+
+clear
+echo "=========================================================="
+echo "          Installation d'une brique Gluster FS            "
+echo "=========================================================="
+echo
+
+echo "Liste des disques connectés :"
+echo "-----------------------------"
+echo
+lsblk
+
+echo
+read -p "Entrez le nom du disque à paramétrer : " disk
+
+echo
+echo "Partitionnement du disque ..."
+echo -e "o\nn\np\n1\n\n\nw\n" | sudo fdisk /dev/$disk
+
+echo
+echo "Formatage de ${disk}1 ..."
+sudo mkfs.xfs /dev/${disk}1
+
+echo
+echo "Montage de ${disk}1 ..."
+sudo mkdir /brick
+echo "/dev/${disk}1 /brick xfs defaults 1 2" | sudo tee -a /etc/fstab
+sudo mount -a && sudo mount
+
+ok=$(df -h | grep /brick)
+if [ -z $ok ]; then
+  echo
+  echo "Le nouveau disque n'a pas été monté : abandon de la procédure !"
+  echo
+  exit 1
+fi
+
+clear
+echo "========> Mise à jour du système ..."
+sudo apt -y update
+echo
+sudo apt -y upgrade
+
+clear
+echo "========> Installation de Gluster FS ..."
+echo
+sudo apt -y install glusterfs-server
+
+clear
+echo "========> Démarrage du service Gluster FS ..."
+echo
+sudo service glusterfs-server start
+sudo service glusterfs-server status
+
+echo
+exit 0
+

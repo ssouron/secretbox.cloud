@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo
+echo "======== GRA1 ========"
+echo
+export OS_REGION_NAME="GRA1"
+nova network-list
+
+echo
+echo "======== SBG1 ========"
+echo
+export OS_REGION_NAME="SBG1"
+nova network-list
+
+echo
+echo "======== BHS1 ========"
+echo
+export OS_REGION_NAME="BHS1"
+nova network-list
+
+echo
+exit 0
+

@@ -8,14 +8,22 @@ else
   host=$1
 fi
 
-if [ -z $2 ]; then
+if [ -z $2 ];then
+  echo
+  read -p "Région : " region
+else
+  region=$2
+fi
+
+if [ -z $3 ]; then
   echo
   read -p "Adresse IP : " IP
 else
-  IP=$2
+  IP=$3
 fi
 
-#
+# sélection de la région
+export OS_REGION_NAME=$region
 
 # Inscription de l'IP dans le script de post-install
 sed -i "s/IP='.*'/IP='$IP'/" postinstall.sh
@@ -24,12 +32,16 @@ sed -i "s/IP='.*'/IP='$IP'/" postinstall.sh
 nova boot --key-name Desktop \
           --image "Ubuntu 16.04" \
           --flavor vps-ssd-1 \
-          --nic net-id=8d3e91fd-c533-418f-8678-4252de201489 \
+          --nic net-name=Ext-Net \
           --user-data postinstall.sh \
           --poll $host
 
-# association à VLAN1
-nova interface-attach --net-id f514b6f0-1556-44ac-b0a2-6f0babce821b --fixed-ip $IP $host
+# association au vRack
+echo
+echo "Association au vRack à l'addresse $IP sur secretbox10 ..."
+echo
+networkId=$(nova network-list | grep secretbox10 | cut -d" " -f2)
+nova interface-attach --net-id $networkId --fixed-ip $IP $host
 
 # mise à jour du fichier /etc/hosts
 echo
@@ -40,9 +52,13 @@ echo
 
 echo
 echo "En attente redémarrage serveur."
-sleep 20
+sleep 15
 echo "Demande de redémarrage hard du serveur."
 nova reboot --hard --poll $host
+
+echo
+echo "Nettoyage de known-hosts ..."
+ssh-keygen -R $host
 
 echo
 exit 0
