@@ -29,3 +29,21 @@ localIP=$(ip addr | grep -o "inet 10\.[0-9]*\.[0-9]*\.[0-9]*" | sed "s/inet //")
 echo "wsrep_node_address=\"$localIP\""			| sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_node_name=\"$(hostname)\""			| sudo tee -a /etc/mysql/conf.d/galera.cnf
 
+echo -e "\n\n========> Configuration du firewall ...\n"
+sudo ufw allow ssh
+sudo ufw allow in on eth1 to any port 3306
+sudo ufw allow in on eth1 to any port 4567
+sudo ufw allow in on eth1 to any port 4568
+sudo ufw allow in on eth1 to any port 4444
+
+echo -e "\n========> Activation du firewall ...\n"
+sudo ufw disable && sudo ufw enable
+echo
+sudo ufw status
+
+echo -e "\n========> Arrêt du serveur mysql ...\n"
+sudo systemctl stop mysql
+
+echo
+exit 0
+
