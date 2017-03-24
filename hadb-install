@@ -11,27 +11,60 @@ sudo apt -y update
 echo
 sudo apt -y upgrade
 
-echo -e "\n========> Installation de HA Proxy ... \n"
-sudo apt -y install haproxy
+echo -e "\n========> Installation de MySql client ...\n"
+sudo apt -y install mysql-client
 
-echo -e "\n========> Configuration de HA Proxy ...\n"
-echo "# Configuration de l'IP balancée" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo "listen cluster_db 10.1.4.1:3306" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    # Mysql" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    mode tcp" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    # mode balancement" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    balance roundrobin" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    # serveurs mariadb" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    server db-g1 10.1.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    server db-s1 10.2.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    server db-b1 10.3.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "# stats" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "listen stats 217.182.140.158:80" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    stats enable" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    stats hide-version" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    stats refresh 30s" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    stats show-node" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    stats auth stef:lolomilastef" | sudo tee -a /etc/haproxy/haproxy.cf
-echo "    stats uri /stats" | sudo tee -a /etc/haproxy/haproxy.cf
+echo -e "\nVérification de la connectivité MySql ...\n"
+mysql -h 10.1.3.1 -u haproxy_check -p"lolomila" -e 'SHOW DATABASES;'
+echo
+read -p "La sortie semble-t-elle correcte ? (o/n) " r
+if [ $r != "o" ]; then
+  echo -e "\nProblème de connectivité MySQL => Abandon.\n"
+  exit 1
+fi
+
+echo -e "\n========> Installation de HAProxy ...\n"
+sudo apt -y install haproxy
+echo -e "\nENABLED=1" | sudo tee -a /etc/default/haproxy
+hr=$(service haproxy | grep status)
+if [ -z $hr ]; then
+  echo -e "\nProblème avec la configuration du service HAProxy => Abandon.\n"
+  exit 1
+fi
+
+echo -e "\n========> Configuration de HAProxy ...\n"
+sudo mv /etc/haproxy/haproxy.cfg{,.original}
+
+echo -e "global" | sudo tee /etc/haproxy/haproxy.cfg
+echo -e "    log 127.0.0.1 local0 notice" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    user haproxy" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    group haproxy\n" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "defaults" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    log global" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    retries 2" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    timeout connect 3000" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    timeout server 5000" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    timeout client 5000\n" | sudo tee -a /etc/haproxy/haproxy.cfg
+
+echo -e "listen mysql-cluster" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    bind 0.0.0.0:3306" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    mode tcp" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    option mysql-check user haproxy_check" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    balance roundrobin" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    server db-g1 10.1.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    server db-s1 10.2.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    server db-b1 10.3.3.1:3306 check\n" | sudo tee -a /etc/haproxy/haproxy.cfg
+
+echo -e "listen 0.0.0.0:80" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    mode http" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats enable" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats uri /" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats realm Strictly\ Private" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats auth stef:lolomila\n" | sudo tee -a /etc/haproxy/haproxy.cfg
+
+sudo service haproxy start
+
+
+
 
 
