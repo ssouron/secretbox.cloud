@@ -1,0 +1,31 @@
+#!/bin/bash
+
+clear
+echo "==========================================================="
+echo "            Configuration d'un noeud MariaDB               "
+echo "==========================================================="
+echo
+
+echo -e "\n========> Création du fichier de configuration ...\n"
+echo "[mysqld]"						| sudo tee /etc/mysql/conf.d/galera.cnf
+echo "binlog_format=ROW"				| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "default-storage-engine=innodb"			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "innodb_autoinc_lock_mode=2"			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "bind-address=0.0.0.0"				| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo							| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "# Galera Provider Configuration"			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_on=ON"					| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_provider=/usr/lib/galera/libgalera_smm.so"	| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo							| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "# Galera Cluster Configuration"			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo 'wsrep_cluster_name="db_cluster"'		| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo 'wsrep_cluster_address="gcomm://10.1.3.1,10.2.3.1,10.3.3.1"' | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo							| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "# Galera Synchronization Configuration"		| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_sst_method=rsync"				| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo							| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "# Galera Node Configuration"			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+localIP=$(ip addr | grep -o "inet 10\.[0-9]*\.[0-9]*\.[0-9]*" | sed "s/inet //")
+echo "wsrep_node_address=\"$localIP\""			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_node_name=\"$(hostname)\""			| sudo tee -a /etc/mysql/conf.d/galera.cnf
+
