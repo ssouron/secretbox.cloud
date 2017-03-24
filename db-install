@@ -1,0 +1,25 @@
+#!/bin/bash
+
+clear
+echo "======================================================="
+echo "               Installation serveur DB                 "
+echo "======================================================="
+echo
+
+echo -e "\n========> Mise à jour du système ...\n\n"
+sudo apt -y update
+echo
+sudo apt -y upgrade
+
+echo -e "\n\n========> Installation MariaDB ...\n\n"
+sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+sudo add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu xenial main'
+sudo apt-get update
+sudo apt-get -y install mariadb-server
+
+echo -e "\n\n========> Installation Rsync ...\n\n"
+sudo apt -y install rsync
+
+echo
+exit 0
+

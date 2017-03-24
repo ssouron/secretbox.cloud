@@ -1,0 +1,37 @@
+#!/bin/bash
+
+clear
+echo "=========================================================="
+echo "           Installation HA-Proxy pour cluster DB          "
+echo "=========================================================="
+echo
+
+echo -e "========> Mise à jour du système ...\n"
+sudo apt -y update
+echo
+sudo apt -y upgrade
+
+echo -e "\n========> Installation de HA Proxy ... \n"
+sudo apt -y install haproxy
+
+echo -e "\n========> Configuration de HA Proxy ...\n"
+echo "# Configuration de l'IP balancée" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo "listen cluster_db 10.1.4.1:3306" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    # Mysql" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    mode tcp" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    # mode balancement" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    balance roundrobin" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    # serveurs mariadb" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    server db-g1 10.1.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    server db-s1 10.2.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    server db-b1 10.3.3.1:3306 check" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "# stats" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "listen stats 217.182.140.158:80" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    stats enable" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    stats hide-version" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    stats refresh 30s" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    stats show-node" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    stats auth stef:lolomilastef" | sudo tee -a /etc/haproxy/haproxy.cf
+echo "    stats uri /stats" | sudo tee -a /etc/haproxy/haproxy.cf
+
+

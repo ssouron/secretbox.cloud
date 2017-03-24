@@ -27,8 +27,8 @@ do
     extIP=$(echo $network | grep -o 'Ext\-Net=.*[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*;' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
   fi
   intIP=$(echo $network | grep -o 'secretbox10=[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*')
-  echo -e "$extIP\t\t$host.secretbox.cloud\t\t$host" | sudo tee -a /etc/hosts >> /dev/null
-  echo -e "$intIP\t\t$host.secretbox.cloud\t\t$host" >> vlan1-hosts
+  echo -e "$extIP\t\t$host.secretbox.cloud\t\t\t$host" | sudo tee -a /etc/hosts >> /dev/null
+  echo -e "$intIP\t\t$host.secretbox.cloud\t\t\t$host" >> vlan1-hosts
 done < tmp.list
 
 rm tmp.list
