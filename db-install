@@ -10,15 +10,31 @@ echo -e "\n========> Mise à jour du système ...\n\n"
 sudo apt -y update
 echo
 sudo apt -y upgrade
+echo
+sudo apt -y install software-properties-common
 
-echo -e "\n\n========> Installation MariaDB ...\n\n"
-sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
-sudo add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://nyc2.mirrors.digitalocean.com/mariadb/repo/10.1/ubuntu xenial main'
+echo -e "\n\n========> Installation MariaDB + Galera ...\n\n"
+sudo apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 0xcbcb082a1bb943db
+sudo add-apt-repository 'deb http://mirror.jmu.edu/pub/mariadb/repo/10.1/ubuntu xenial main'
 sudo apt -y update
-sudo apt -y install mariadb-server
+sudo apt -y install mariadb-client mariadb-galera-server galera
 
 echo -e "\n\n========> Installation Rsync ...\n\n"
 sudo apt -y install rsync
+
+echo -e "\n========> Désactivation AppArmor pour mysql ...\n"
+sudo ln -s /etc/apparmor.d/usr /etc/apparmor.d/disable/.sbin.mysqld
+sudo service apparmor restart
+
+echo -e "\n========> Création d'un fichier swap ...\n"
+sudo fallocate -l 1G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
+
+echo -e "\n========> Configuration du serveur MySql ...\n"
+sudo sed -i "s/bind-address.*127.0.0.1/bind-address=0.0.0.0/" /etc/mysql/my.cnf
 
 echo -e "\n========> Création du fichier de configuration du cluster ...\n"
 echo "[mysqld]"						| sudo tee /etc/mysql/conf.d/galera.cnf
@@ -43,7 +59,7 @@ localIP=$(ip addr | grep -o "inet 10\.[0-9]*\.[0-9]*\.[0-9]*" | sed "s/inet //")
 echo "wsrep_node_address=\"$localIP\""			| sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_node_name=\"$(hostname)\""			| sudo tee -a /etc/mysql/conf.d/galera.cnf
 
-sudo sed -i "s/bind-address.*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+
 
 echo -e "\n========> Arrêt du serveur mysql ...\n"
 sudo service mysql stop
