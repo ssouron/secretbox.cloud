@@ -46,14 +46,7 @@ echo "wsrep_node_name=\"$(hostname)\""			| sudo tee -a /etc/mysql/conf.d/galera.
 sudo sed -i "s/bind-address.*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
 
 echo -e "\n========> Arrêt du serveur mysql ...\n"
-sudo systemctl stop mysql
-
-echo | sudo tee -a /etc/mysql/debian.cnf
-echo "# ===============================================================" | sudo tee -a /etc/mysql/debian.cnf
-echo "# Il faut maintenant copier le contenu de ce fichier si l'on est " | sudo tee -a /etc/mysql/debian.cnf
-echo "# est sur le premier node ou le coller si l'on est sur un autre. " | sudo tee -a /etc/mysql/debian.cnf
-echo "# ===============================================================" | sudo tee -a /etc/mysql/debian.cnf
-sudo nano /etc/mysql/debian.cnf
+sudo service mysql stop
 
 echo
 exit 0

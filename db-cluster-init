@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# on récupère dans les lignes de /etc/hosts tous les hôtes en 'gdb'
+
