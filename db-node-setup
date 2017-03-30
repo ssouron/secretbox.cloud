@@ -8,7 +8,8 @@ echo
 
 # Mise à jour du système
 echo -e "\n======== Mise à jour du système ========\n"
-sudo apt -y update && sudo -y upgrade
+sudo apt -y update
+sudo apt -y upgrade
 
 # Réglage AppArmor
 echo -e "\n======== Configuration de AppArmor ========\n"
@@ -17,11 +18,13 @@ sudo service apparmor restart
 
 # Installation de Maria DB
 echo -e "\n======== Ajout des dépôts Maria DB ========\n"
+echo -e "Installation de Software Common Properties ...\n"
 sudo apt -y install software-properties-common
-sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+echo -e "Ajout des dépôts Maria DB ...\n"
+sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 &> /dev/null
 sudo add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://fr.mirror.babylon.network/mariadb/repo/10.1/ubuntu xenial main'
 sudo apt -y update
-echo
+echo -e "Installation  de Maria DB et du cluster Galera ...\n"
 sudo apt -y install mariadb-server galera
 
 # Configuration de MySql
@@ -42,6 +45,8 @@ sudo fallocate -l $(expr $ram / 1024)M /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
+echo -e "Fichier Swap créé :"
+swapon --show
 echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
 
 # Configuration du cluster Galera
@@ -60,6 +65,7 @@ echo -e "\n======== Arrêt du serveur MySql ========\n"
 sudo service mysql stop
 
 # Redémarrage du serveur
+echo -e "\n======== Redémarrage du serveur ========\n"
 sudo reboot now
 
 echo
