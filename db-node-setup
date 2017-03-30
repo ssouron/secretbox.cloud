@@ -51,13 +51,14 @@ echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
 
 # Configuration du cluster Galera
 echo -e "\n======== Configuration du cluster Galera ========\n"
+nodesAddr="10.1.2.1,10.1.2.2,10.1.2.3,10.1.2.4,10.1.2.5,10.1.2.6,10.1.2.7,10.1.2.8,10.1.2.9,10.2.2.1,10.2.2.2,10.2.2.3,10.2.2.4,10.2.2.5,10.2.2.6,10.2.2.7,10.2.2.8,10.2.2.9,10.3.2.1,10.3.2.2,10.3.2.3,10.3.2.4,10.3.2.5,10.3.2.6,10.3.2.7,10.3.2.8,10.3.2.9"
 IP=$(ifconfig | grep -o "addr:10\.[0-9.]*" | grep -o "[0-9.]*")
 host=$(hostname)
 echo "[mysqld]" | sudo tee /etc/mysql/conf.d/galera.cnf
 echo "wsrep_on=ON" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_provider=/usr/lib/libgalera_smm.so" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_cluster_name=\"db-cluster\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_cluster_address=\"gcomm://$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_cluster_address=\"gcomm://$nodesAddr\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_sst_method=rsync" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_node_name=\"$host\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_node_address=\"$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
