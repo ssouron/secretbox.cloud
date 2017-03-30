@@ -30,12 +30,12 @@ sudo apt -y install mariadb-server galera
 # Configuration de MySql
 echo -e "\n======== Configuration de MySql ========\n"
 sudo sed -i "/^#.*$/d" /etc/mysql/my.cnf
-sudo sed -i "s/bind-address.*$/bind-address=0.0.0.0/" /etc/mysql/my.cnf
-sudo sed -i "s/\(max_binlog_size.*$\)/\1\nbinlog_format=ROW/" /etc/mysql/my.cnf
-sudo sed -i "s/\(default_storage_engine\).*$/\1=InnoDB/" /etc/mysql/my.cnf
-sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_autoinc_lock_mode=2/" /etc/mysql/my.cnf
-sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_flush_log_at_trx_commit=0/" /etc/mysql/my.cnf
-sudo sed -i "s/\(innodb_buffer_pool_size\).*$/\1=240M/" /etc/mysql/my.cnf
+sudo sed -i "s/bind-address.*$/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+sudo sed -i "s/\(max_binlog_size.*$\)/\1\nbinlog_format = ROW/" /etc/mysql/my.cnf
+sudo sed -i "s/\(default_storage_engine\).*$/\1 = InnoDB/" /etc/mysql/my.cnf
+sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_autoinc_lock_mode = 2/" /etc/mysql/my.cnf
+sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_flush_log_at_trx_commit = 0/" /etc/mysql/my.cnf
+sudo sed -i "s/\(innodb_buffer_pool_size\).*$/\1 = 240M/" /etc/mysql/my.cnf
 cat /etc/mysql/my.cnf
 
 # Ajout d'un espace de swap de même taille que la RAM
@@ -53,12 +53,13 @@ echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
 echo -e "\n======== Configuration du cluster Galera ========\n"
 IP=$(ifconfig | grep -o "addr:10\.[0-9.]*" | grep -o "[0-9.]*")
 host=$(hostname)
-echo "[mysql]" | sudo tee /etc/mysql/conf.d/galera.cnf
-echo "wsrep_cluster_name=db_cluster" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_cluster_address=\"gcomm://$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_node_name=$host" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_node_address=$IP" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "[mysqld]" | sudo tee /etc/mysql/conf.d/galera.cnf
+echo "wsrep_on=ON" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_provider=/usr/lib/libgalera_smm.so" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_cluster_name=\"db-cluster\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_cluster_address=\"gcomm://$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_node_name=\"$host\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_node_address=\"$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 
 # Arrêt du serveur MySql
 echo -e "\n======== Arrêt du serveur MySql ========\n"

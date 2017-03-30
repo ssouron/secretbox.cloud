@@ -23,9 +23,12 @@ IPlist=$(echo $IPlist | sed "s/^,//")
 # Mise à jour des addresses du cluster dans chaque noeud
 echo -e "\n======== Recopie des Ips sur chaque noeud du cluster ========\n"
 while read line; do
-  echo "Noeud $line :"
-  ssh stef@$line "sudo sed -i \"s/gcomm:\/\/[0-9.,]*/$IPlist\" /etc/mysql/conf.d/galera.cnf"
-  ssh stef@$line "cat /etc/mysql/conf.d/galera.cnf | grep gcomm"
+  host=$(cat ~/secretbox.cloud/vlan1-hosts | grep $line | grep -o "gdb-.[0-9]*$")
+  echo "Noeud $host [$line] :"
+  ssh stef@host "sudo service mysql stop"
+  sedstr="\"s/\(gcomm:\/\/\)[0-9.,]*/\1$IPlist\"/"
+  ssh stef@$host "sudo sed -i $sedstr /etc/mysql/conf.d/galera.cnf"
+  ssh stef@$host "cat /etc/mysql/conf.d/galera.cnf" | grep gcomm
   echo
 done < lines.txt
 
