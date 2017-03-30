@@ -58,6 +58,7 @@ echo "wsrep_on=ON" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_provider=/usr/lib/libgalera_smm.so" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_cluster_name=\"db-cluster\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_cluster_address=\"gcomm://$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_sst_method=rsync" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_node_name=\"$host\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_node_address=\"$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 
