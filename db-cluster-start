@@ -10,7 +10,7 @@ echo
 sudo service mysql stop
 
 # Démarrage du noeud
-read -n1 "Démarrage en tant que premier node du cluster ? (y/n) " k
+read -n1 -p "Démarrage en tant que premier node du cluster ? (y/n) " k
 if [ $k = "y" ]; then
   sudo galera_new_cluster
 else
