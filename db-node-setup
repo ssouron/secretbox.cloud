@@ -8,7 +8,8 @@ echo
 
 # Mise à jour du système
 echo -e "\n======== Mise à jour du système ========\n"
-sudo apt -y update && sudo -y upgrade
+sudo apt -y update
+sudo apt -y upgrade
 
 # Réglage AppArmor
 echo -e "\n======== Configuration de AppArmor ========\n"
@@ -17,22 +18,24 @@ sudo service apparmor restart
 
 # Installation de Maria DB
 echo -e "\n======== Ajout des dépôts Maria DB ========\n"
+echo -e "Installation de Software Common Properties ...\n"
 sudo apt -y install software-properties-common
-sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8
+echo -e "Ajout des dépôts Maria DB ...\n"
+sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 &> /dev/null
 sudo add-apt-repository 'deb [arch=amd64,i386,ppc64el] http://fr.mirror.babylon.network/mariadb/repo/10.1/ubuntu xenial main'
 sudo apt -y update
-echo
+echo -e "Installation  de Maria DB et du cluster Galera ...\n"
 sudo apt -y install mariadb-server galera
 
 # Configuration de MySql
 echo -e "\n======== Configuration de MySql ========\n"
 sudo sed -i "/^#.*$/d" /etc/mysql/my.cnf
-sudo sed -i "s/bind-address.*$/bind-address=0.0.0.0/" /etc/mysql/my.cnf
-sudo sed -i "s/\(max_binlog_size.*$\)/\1\nbinlog_format=ROW/" /etc/mysql/my.cnf
-sudo sed -i "s/\(default_storage_engine\).*$/\1=InnoDB/" /etc/mysql/my.cnf
-sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_autoinc_lock_mode=2/" /etc/mysql/my.cnf
-sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_flush_log_at_trx_commit=0/" /etc/mysql/my.cnf
-sudo sed -i "s/\(innodb_buffer_pool_size\).*$/\1=240M/" /etc/mysql/my.cnf
+sudo sed -i "s/bind-address.*$/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+sudo sed -i "s/\(max_binlog_size.*$\)/\1\nbinlog_format = ROW/" /etc/mysql/my.cnf
+sudo sed -i "s/\(default_storage_engine\).*$/\1 = InnoDB/" /etc/mysql/my.cnf
+sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_autoinc_lock_mode = 2/" /etc/mysql/my.cnf
+sudo sed -i "s/\(innodb_flush_method.*$\)/\1\ninnodb_flush_log_at_trx_commit = 0/" /etc/mysql/my.cnf
+sudo sed -i "s/\(innodb_buffer_pool_size\).*$/\1 = 240M/" /etc/mysql/my.cnf
 cat /etc/mysql/my.cnf
 
 # Ajout d'un espace de swap de même taille que la RAM
@@ -42,24 +45,30 @@ sudo fallocate -l $(expr $ram / 1024)M /swapfile
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
+echo -e "Fichier Swap créé :"
+swapon --show
 echo "/swapfile none swap defaults 0 0" | sudo tee -a /etc/fstab
 
 # Configuration du cluster Galera
 echo -e "\n======== Configuration du cluster Galera ========\n"
+nodesAddr="10.1.2.1,10.1.2.2,10.1.2.3,10.1.2.4,10.1.2.5,10.1.2.6,10.1.2.7,10.1.2.8,10.1.2.9,10.2.2.1,10.2.2.2,10.2.2.3,10.2.2.4,10.2.2.5,10.2.2.6,10.2.2.7,10.2.2.8,10.2.2.9,10.3.2.1,10.3.2.2,10.3.2.3,10.3.2.4,10.3.2.5,10.3.2.6,10.3.2.7,10.3.2.8,10.3.2.9"
 IP=$(ifconfig | grep -o "addr:10\.[0-9.]*" | grep -o "[0-9.]*")
 host=$(hostname)
-echo "[mysql]" | sudo tee /etc/mysql/conf.d/galera.cnf
-echo "wsrep_cluster_name=db_cluster" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_cluster_address=\"gcomm://$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_node_name=$host" | sudo tee -a /etc/mysql/conf.d/galera.cnf
-echo "wsrep_node_address=$IP" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "[mysqld]" | sudo tee /etc/mysql/conf.d/galera.cnf
+echo "wsrep_on=ON" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 echo "wsrep_provider=/usr/lib/libgalera_smm.so" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_cluster_name=\"db-cluster\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_cluster_address=\"gcomm://$nodesAddr\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_sst_method=rsync" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_node_name=\"$host\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
+echo "wsrep_node_address=\"$IP\"" | sudo tee -a /etc/mysql/conf.d/galera.cnf
 
 # Arrêt du serveur MySql
 echo -e "\n======== Arrêt du serveur MySql ========\n"
 sudo service mysql stop
 
 # Redémarrage du serveur
+echo -e "\n======== Redémarrage du serveur ========\n"
 sudo reboot now
 
 echo

@@ -2,51 +2,24 @@
 
 clear
 echo "======================================================"
-echo "           initialisation du cluster galera           "
+echo "          démarrage noeud de cluster galera           "
 echo "======================================================"
 echo
 
-# mise à jour de /etc/hosts
-echo -e "\n======== Mise à jour de la liste des serveurs ========\n"
-./hosts-update
+# Arrêt du noeud
+sudo service mysql stop
 
-echo -e "\n======== Construction de la liste des IPs du Cluster ========\n"
-# on récupère dans les lignes de /etc/hosts tous les IPs des hôtes en 'gdb-'
-cat ~/secretbox.cloud/vlan1-hosts | grep "gdb-" | grep -o "10\.[0-9.]*" > lines.txt
-# on construit la liste des adresses IP
-IPlist=""
-while read line; do
-  IPlist="$IPlist,$line"
-done < lines.txt
-IPlist=$(echo $IPlist | sed "s/^,//")
+# Démarrage du noeud
+read -n1 -p "Démarrage en tant que premier node du cluster ? (y/n) " k
+if [ $k = "y" ]; then
+  sudo galera_new_cluster
+else
+  sudo service mysql start
+fi
 
-# Mise à jour des addresses du cluster dans chaque noeud
-echo -e "\n======== Recopie des Ips sur chaque noeud du cluster ========\n"
-while read line; do
-  echo "Noeud $line :"
-  ssh stef@$line "sudo sed -i \"s/gcomm:\/\/[0-9.,]*/$IPlist\" /etc/mysql/conf.d/galera.cnf"
-  ssh stef@$line "cat /etc/mysql/conf.d/galera.cnf | grep gcomm"
-  echo
-done < lines.txt
-
-exit 1
-
-# Démarrage du premier noeud (gdb-g1)
-echo -e "\n========> Démarrage du premier noeud du cluster ...\n"
-ssh stef@gdb-g1 'sudo galera_new_cluster'
-
-# Démarrage des autres noeuds
-echo -e "\n========> Démarrage des autres noeuds du cluster ...\n"
-cat /etc/hosts | grep "gdb-" | grep -v "gdb-g1" > lines.txt
-while read line; do
-  host=$(echo $line | grep -o "gdb-[gsb\-0-9]")
-  echo "Démarrage de $host"
-  ssh stef@$host 'sudo service mysql start'
-  echo
-done < lines.txt
-
-# Nettoyage
-sudo rm lines.txt
+# affichage de la taille du cluster
+echo -e "\nEntrer le mot de passe root mysql :"
+mysql -u root -p -e "SHOW STATUS LIKE 'wsrep_cluster_size';"
 
 echo
 exit 0
