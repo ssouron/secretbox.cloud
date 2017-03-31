@@ -15,4 +15,5 @@ esac
 
 printf "size.value "
 printf $(mysql -uroot -plolomila -e "show status like 'wsrep_cluster_size';" | grep -o 'cluster_size.*[0-9]*' | grep -o "[0-9]*")
+printf "\n"
 
