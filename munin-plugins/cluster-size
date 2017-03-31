@@ -4,7 +4,7 @@ case $1 in
     config)
         cat <<'EOM'
 graph_title Cluster Size
-graph_args --base 1000 -r -l 0 --upper-limit 10
+graph_args --base 1000 -r -l 0 --upper-limit 30
 graph_category database
 graph_vlabel size
 size.draw AREA
