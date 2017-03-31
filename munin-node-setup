@@ -1,4 +1,38 @@
 #!/bin/bash
 
-sudo apt -y install munin-node
+# installation des logiciels
+sudo apt -y install munin-node munin-plugins-extra
+
+# ajout de l'adresse du maître dans le fichier de configuration
+masterline=$(cat /etc/munin/munin-node.conf | grep "allow \^10\\\.1\\\.0\\\.1\$")
+if [ -z masterline ]; then
+  echo "allow ^10\.1\.0\.1$" | sudo tee -a /etc/munin/munin-node.conf
+fi
+
+# ajout des règles iptables pour monitorer le traffic
+IP=$(ifconfig | grep -o "addr:10.[0-9.]*" | grep -o "[0-9.]*")
+sudo iptables -A INPUT -s $IP
+sudo iptables -A OUTPUT -d $IP
+
+# installation du plugin ip_xx
+sudo ln -s /usr/share/munin/plugins/ip_ /etc/munin/plugins/ip_$IP
+
+# suppression des plugins inutiles
+sudo rm /etc/munin/plugins/df_inode
+sudo rm /etc/munin/plugins/entropy
+sudo rm /etc/munin/plugins/forks
+sudo rm /etc/munin/plugins/fw_paquets
+sudo rm /etc/munin/plugins/if_err_eth0
+sudo rm /etc/munin/plugins/if_err_eth1
+sudo rm /etc/munin/plugins/if_eth0
+sudo rm /etc/munin/plugins/if_eth1
+sudo rm /etc/munin/plugins/interrupts
+sudo rm /etc/munin/plugins/ip_
+sudo rm /etc/munin/plugins/irqstats
+sudo rm /etc/munin/plugins/open_files
+sudo rm /etc/munin/plugins/open_inodes
+sudo rm /etc/munin/plugins/proc_pri
+
+# redémarrage du noeud munin
+sudo service munin-node restart
 
