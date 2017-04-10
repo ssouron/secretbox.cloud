@@ -11,8 +11,11 @@ fi
 
 # ajout des règles iptables pour monitorer le traffic
 IP=$(ifconfig | grep -o "addr:10.[0-9.]*" | grep -o "[0-9.]*")
-sudo iptables -A INPUT -d $IP
-sudo iptables -A OUTPUT -s $IP
+sudo iptables -I INPUT -d $IP
+sudo iptables -I OUTPUT -s $IP
+
+# ajout des mêmes règles dans /etc/rc.local pour redémarrage
+sudo sed -i "s/exit 0/iptables -I INPUT -d $IP\niptables -I OUTPUT -s $IP\n\nexit 0/" /etc/rc.local
 
 # installation du plugin ip_xx
 sudo ln -s /usr/share/munin/plugins/ip_ /etc/munin/plugins/ip_$IP

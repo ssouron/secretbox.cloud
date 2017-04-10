@@ -74,6 +74,10 @@ mysql -h 127.0.0.1 -u haproxy_check -e "show variables like 'wsrep_node_name';"
 echo -e "\nTEST 3 :"
 mysql -h 127.0.0.1 -u haproxy_check -e "show variables like 'wsrep_node_name';"
 
-
+echo -e "\nInstallation de munin-node\n" | figlet
+./munin-node-setup
+sudo ln -s /usr/share/munin/plugins/haproxy_ /etc/munin/plugins/haproxy
+sudo service munin-node restart
+echo -e "\n====> NE PAS OUBLIER D'AJOUTER CE NODE SUR LE MASTER MUNIN ! ====\n"
 
 
