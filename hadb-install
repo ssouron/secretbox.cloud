@@ -45,7 +45,7 @@ echo -e "    timeout client 50000ms" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    timeout server 50000ms\n" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "listen galera_cluster" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    bind $IP:3306" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    mode tcp" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    mode tcp" | sudo tee -a /etexitc/haproxy/haproxy.cfg
 echo -e "    balance roundrobin" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    option tcpka" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    option mysql-check user haproxy_check" | sudo tee -a /etc/haproxy/haproxy.cfg
@@ -77,6 +77,7 @@ mysql -h 127.0.0.1 -u haproxy_check -e "show variables like 'wsrep_node_name';"
 echo -e "\nInstallation de munin-node\n" | figlet
 ./munin-node-setup
 sudo ln -s /usr/share/munin/plugins/haproxy_ /etc/munin/plugins/haproxy
+echo "allow ^10\.1\.0\.1$" | sudo tee -a /etc/munin/munin-node.conf
 sudo service munin-node restart
 echo -e "\n====> NE PAS OUBLIER D'AJOUTER CE NODE SUR LE MASTER MUNIN ! ====\n"
 
