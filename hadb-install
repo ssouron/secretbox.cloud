@@ -1,25 +1,30 @@
 #!/bin/bash
 
+echo -e "\n========> installation de figlet ...\n"
+sudo apt -y install figlet &> /dev/null
+
 clear
-echo "=========================================================="
-echo "           Installation HA-Proxy pour cluster DB          "
-echo "=========================================================="
+echo "-------------" | figlet
+echo "Installation HA-Proxy pour cluster DB" | figlet
+echo "-------------" | figlet
 echo
 
-echo -e "========> Mise à jour du système ...\n"
+echo -e "\nMise a jour du systeme ...\n" | figlet
 sudo apt -y update
 echo
 sudo apt -y upgrade
 
-echo -e "\n========> Installation de Mariadb client ...\n"
+echo -e "\nInstallation MariaDB client\n" | figlet
 sudo apt -y install mariadb-client
 
-echo -e "\n========> Installation HA Proxy ... \n"
+echo -e "\nInstallation HA Proxy\n" | figlet
 sudo apt -y install haproxy
 
-echo -e "\n========> Configuration de HA Proxy ...\n"
+echo -e "\nConfiguration HA Proxy\n" | figlet
 echo -e "\nENABLED=1\n" | sudo tee -a /etc/default/haproxy
 sudo mv /etc/haproxy/haproxy.cfg{,.original}
+# récup adresse IP
+IP=$(ifconfig | grep -o "inet addr:10.[0-9.]*" | grep -o "[0-9.]*")
 echo -e "global" | sudo tee /etc/haproxy/haproxy.cfg
 echo -e "    log 127.0.0.1 local0" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    log 127.0.0.1 local1 notice" | sudo tee -a /etc/haproxy/haproxy.cfg
@@ -39,32 +44,41 @@ echo -e "    timeout connect 5000ms" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    timeout client 50000ms" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    timeout server 50000ms\n" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "listen galera_cluster" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    bind 0.0.0.0:3306" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    mode tcp" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    bind $IP:3306" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    mode tcp" | sudo tee -a /etexitc/haproxy/haproxy.cfg
 echo -e "    balance roundrobin" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    option tcpka" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    option mysql-check user haproxy_check" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    server db-g1 10.1.3.1:3306 check weight 1" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    server db-s1 10.2.3.1:3306 check weight 1" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    server db-b1 10.3.3.1:3306 check weight 1\n" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "listen stats"
-echo -e "    bind 0.0.0.0:80"
-echo -e "    stats enable"
-echo -e "    stats hide-version"
-echo -e "    stats refresh 10s"
-echo -e "    stats show-node"
-echo -e "    stats auth stef:lolomila"
-echo -e "    stats uri /\n"
+echo -e "    server db-g1 10.1.2.1:3306 check weight 1" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    server db-s1 10.2.2.1:3306 check weight 1" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    server db-b1 10.3.2.1:3306 check weight 1\n" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "listen stats" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    bind 0.0.0.0:80" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats enable" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats hide-version" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats refresh 10s" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats show-node" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats auth stef:lolomila" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    stats uri /\n" | sudo tee -a /etc/haproxy/haproxy.cfg
 
-echo -e "\n========> Démarrage de HA Proxy ...\n"
+echo -e "\nDémarrage de HA Proxy\n" | figlet
 sudo service haproxy start
 sudo service haproxy reload
 sudo netstat -plantu | grep 3306
 
-echo -e "\n========> Test de connexion MySql ...\n"
+echo -e "\nTest de connexion MySql\n" | figlet
 echo -e "\nTEST 1 :"
-mysql -u haproxy_check -p -h 127.0.0.1 -e "show variables like 'wsrep_node_name';"
+mysql -h 127.0.0.1 -u haproxy_check -e "show variables like 'wsrep_node_name';"
+echo -e "\nTEST 2 :"
+mysql -h 127.0.0.1 -u haproxy_check -e "show variables like 'wsrep_node_name';"
+echo -e "\nTEST 3 :"
+mysql -h 127.0.0.1 -u haproxy_check -e "show variables like 'wsrep_node_name';"
 
-
+echo -e "\nInstallation de munin-node\n" | figlet
+./munin-node-setup
+sudo ln -s /usr/share/munin/plugins/haproxy_ /etc/munin/plugins/haproxy
+echo "allow ^10\.1\.0\.1$" | sudo tee -a /etc/munin/munin-node.conf
+sudo service munin-node restart
+echo -e "\n====> NE PAS OUBLIER D'AJOUTER CE NODE SUR LE MASTER MUNIN ! ====\n"
 
 

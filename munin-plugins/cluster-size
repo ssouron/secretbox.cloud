@@ -1,0 +1,19 @@
+#!/bin/bash
+
+case $1 in
+    config)
+        cat <<'EOM'
+graph_title Cluster Size
+graph_args --base 1000 -r -l 0 --upper-limit 30
+graph_category database
+graph_vlabel size
+size.draw AREA
+size.label size
+EOM
+        exit 0;;
+esac
+
+printf "size.value "
+printf $(mysql -umunin -e "show status like 'wsrep_cluster_size';" | grep -o 'cluster_size.*[0-9]*' | grep -o "[0-9]*")
+printf "\n"
+

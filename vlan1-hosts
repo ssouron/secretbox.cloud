@@ -3,3 +3,4 @@
 10.1.0.1		service.secretbox.cloud			service
 10.2.2.1		gdb-s1.secretbox.cloud			gdb-s1
 10.3.2.1		gdb-b1.secretbox.cloud			gdb-b1
+10.3.2.101		lbdb-b1.secretbox.cloud			lbdb-b1
