@@ -1,0 +1,9 @@
+#!/bin/bash
+
+sudo rm /etc/munin/plugins/memory
+sudo ln -s /home/stef/secretbox.cloud/munin-plugins/memory /etc/munin/plugins/memory
+
+sudo rm /etc/munin/plugins/load
+sudo ln -s /home/stef/secretbox.cloud/munin-plugins/load /etc/munin/plugins/load
+
+sudo service munin-node restart
