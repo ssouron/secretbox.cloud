@@ -4,10 +4,7 @@
 sudo apt -y install munin-node munin-plugins-extra
 
 # ajout de l'adresse du maître dans le fichier de configuration
-masterline=$(cat /etc/munin/munin-node.conf | grep "allow \^10\\\.1\\\.0\\\.1\$")
-if [ -z masterline ]; then
-  echo "allow ^10\.1\.0\.1$" | sudo tee -a /etc/munin/munin-node.conf
-fi
+echo "allow ^10\.1\.0\.1$" | sudo tee -a /etc/munin/munin-node.conf
 
 # ajout des règles iptables pour monitorer le traffic
 IP=$(ifconfig | grep -o "addr:10.[0-9.]*" | grep -o "[0-9.]*")
@@ -16,9 +13,6 @@ sudo iptables -I OUTPUT -s $IP
 
 # ajout des mêmes règles dans /etc/rc.local pour redémarrage
 sudo sed -i "s/exit 0/iptables -I INPUT -d $IP\niptables -I OUTPUT -s $IP\n\nexit 0/" /etc/rc.local
-
-# installation du plugin ip_xx
-sudo ln -s /usr/share/munin/plugins/ip_ /etc/munin/plugins/ip_$IP
 
 # suppression des plugins inutiles
 sudo rm /etc/munin/plugins/df_inode
@@ -35,6 +29,13 @@ sudo rm /etc/munin/plugins/irqstats
 sudo rm /etc/munin/plugins/open_files
 sudo rm /etc/munin/plugins/open_inodes
 sudo rm /etc/munin/plugins/proc_pri
+sudo rm /etc/munin/plugins/memory
+sudo rm /etc/munin/plugins/load
+
+# installation des plugins modifiés
+sudo ln -s /home/stef/secretbox.cloud/munin-plugins/ip_ /etc/munin/plugins/ip_$IP
+sudo ln -s /home/stef/secretbox.cloud/munin-plugins/load /etc/munin/plugins/load
+sudo ln -s /home/stef/secretbox.cloud/munin-plugins/memory /etc/munin/plugins/memory
 
 # redémarrage du noeud munin
 sudo service munin-node restart
