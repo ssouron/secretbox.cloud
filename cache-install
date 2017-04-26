@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# mise à jour du système
+sudo apt -y update
+sudo apt -y upgrade
+
+# installation de redis server
+sudo -y install redis-server
+
+# test du serveur redis
+echo -e "\nTest du serveur Redis :"
+echo -e "=======================\n"
+redis-benchmark -q -n 1000 -c 10 -P 5
+echo
+read -n 1 -p "presser une touche pour continuer..."
+echo -e "\n\n"
+
+# configuration du serveur
+IP=$(ifconfig | grep -o "inet addr:10[0-9.]*" | grep -o "10.[0-9.]*")
+sudo sed -i "s/^bind.*$/bind $IP 127.0.0.1/" /etc/redis/redis.conf
+
+read -p "Sommes-nous sur le serveur de cache MASTER (y/n)" rep
+if [ rep = "y" ]; then
+  # configuration sur le master
+  echo -e "\n\n"
+  sudo sed -i "s/^tcp-keepalive.*$/tcp-keepalive 60/" /etc/redis/redis.conf
+  sudo sed -i "s/^appendonly.*$/appendonly yes/" /etc/redis/redis.conf
+  sudo sed -i "s/^appendfilename.*$/appendfilename redis-staging-ao.aof/" /etc/redis/redis.conf
+  echo
+else
+  # configuration sur le slave
+  sudo sed -i "s/^# slaveof.*$/slaveof 10.1.3.1 6379/" /etc/redis/redis.conf
+fi
+
+sudo service redis-server restart
+

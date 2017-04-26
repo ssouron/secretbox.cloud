@@ -44,7 +44,7 @@ echo -e "    timeout connect 5000ms" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    timeout client 50000ms" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    timeout server 50000ms\n" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "listen galera_cluster" | sudo tee -a /etc/haproxy/haproxy.cfg
-echo -e "    bind $IP:3306" | sudo tee -a /etc/haproxy/haproxy.cfg
+echo -e "    bind 10.1.2.100:3306" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    mode tcp" | sudo tee -a /etexitc/haproxy/haproxy.cfg
 echo -e "    balance roundrobin" | sudo tee -a /etc/haproxy/haproxy.cfg
 echo -e "    option tcpka" | sudo tee -a /etc/haproxy/haproxy.cfg
