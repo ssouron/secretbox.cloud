@@ -5,7 +5,7 @@ sudo apt -y update
 sudo apt -y upgrade
 
 # installation de redis server
-sudo -y install redis-server
+sudo apt -y install redis-server
 
 # test du serveur redis
 echo -e "\nTest du serveur Redis :"
